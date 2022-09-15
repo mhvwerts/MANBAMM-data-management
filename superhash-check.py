@@ -160,8 +160,10 @@ if dump_missing:
     wrtmiss.writerows(lmissing)
     fmiss.close()
 
-print('Not found : {0:d} files'.format(Nnotfound))
-print('ERRORS    : {0:d} files'.format(Nerrorsum))
+print('')
+print('Not found : {0:d} files (entries present in File#2 but not in File#1)'.\
+      format(Nnotfound))
+print('ERRORS    : {0:d} files (MD5 checksums disagree)'.format(Nerrorsum))
 
 
 print('')
