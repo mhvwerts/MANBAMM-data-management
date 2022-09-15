@@ -1,0 +1,151 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+# superhash-check.py and superhash.py should be same version
+# There is no backward/forward compatibility: both should be
+# the same, compatible version. This will determine the version
+# of the data file format.
+
+__version__ = '0.1a1' 
+
+import sys
+import os
+import os.path
+import argparse
+from pathlib import PurePosixPath
+import hashlib
+from datetime import datetime
+import csv
+
+from tqdm import tqdm
+
+#%% classes and functions
+
+DROPPATHPARTS = 1 # Number of intial parts of the path to drop (ideally, 1)
+
+class SuperhashIndex:
+    def __init__(self, fpn):
+        with open(fpn,'r') as fin:
+            rdr = csv.reader(fin, delimiter='\t', quoting=csv.QUOTE_NONE)
+            self.header = [rdr.__next__() for i in range(5)]
+            if not (self.header[0][0] == '# superhash-version'):
+                raise Exception('Not a superhash file')
+            if not (self.header[0][1] == __version__):
+                raise Exception('Wrong superhash version')
+            self.lines = []
+            for rawln in rdr:
+                cleanpath = PurePosixPath(*PurePosixPath(\
+                                               rawln[1]).parts[DROPPATHPARTS:])
+                ln = [datetime.fromisoformat(rawln[0]),
+                      cleanpath,
+                      rawln[2],
+                      datetime.fromisoformat(rawln[3]),
+                      int(rawln[4]),
+                      rawln[5]]
+                self.lines.append(ln)
+        self.shfilename = fpn
+        self.seqsrchix = 0
+        self.Nlines = len(self.lines)
+                
+    def print_stats(self):
+        totalbytes = 0
+        for ln in self.lines:
+            totalbytes += ln[4]
+        td = self.lines[-1][0] - self.lines[0][0]
+        totaltime = td.total_seconds()
+        throughp = totalbytes/(1e6*totaltime)
+        print('Superhash file :', self.shfilename)
+        print('Total indexed  : {0:d} files'.format(self.Nlines))
+        print('Total scanned  : {1:.3f} Gb ({0:d} bytes)'.format(totalbytes,
+                                                               totalbytes/1e9))
+        print('Time taken     : {0:.1f} s'.format(totaltime))
+        print('Throughput     : {0:.3f} Mb/s'.format(throughp))
+        print('')
+        
+    def seqsearch(self, path, fname):
+        """
+        Search for the line containing info for path, fname
+
+        Parameters
+        ----------
+        path : pathlib.PurePath
+            Path to be found.
+        fname : str
+            Filename to be found.
+
+        Returns
+        -------
+        foundix : int or None
+            Index of the line containing info for path, fname.
+            Returns None if not found
+            
+        This implements a sequential search, which restarts at the last line
+        after the line where a successful match was found. This makes subsequent
+        searches highly efficient, since both SuperhashIndexes (superhash files)
+        are expected to be 'in sync' over extended portions, even completely
+        'in sync', thanks to sorting the os.walk() stuff.
+        """
+        foundix = None
+        ix = self.seqsrchix
+        while True:
+            if fname == self.lines[ix][2]:
+                if path.is_relative_to(self.lines[ix][1]):
+                    foundix = ix
+            ix += 1
+            if (ix == self.Nlines):
+                ix = 0
+            if ix == self.seqsrchix:
+                break
+            if foundix is not None:
+                break
+        self.seqsrchix = ix
+        return foundix
+            
+
+        
+
+#%% main program
+
+cli = argparse.ArgumentParser()
+cli.add_argument("file1", type=str,
+                 help="first superhash file")
+cli.add_argument("file2", type=str,
+                 help="2nd superhash file")
+clargs = cli.parse_args()
+
+print('')
+print("MANBAMM's superhash-check - v"+__version__+" - by M.H.V. Werts, 2022")
+print("")
+
+print('FILE #1')
+print('=======')
+sh1 = SuperhashIndex(clargs.file1)
+sh1.print_stats()
+
+print('FILE #2')
+print('=======')
+sh2 = SuperhashIndex(clargs.file2)
+sh2.print_stats()
+
+# search the lines present in sh2 in sh1, and compare MD5 checksums
+
+print('Check data lines in File #2 against File #1')
+print('===========================================')
+Nnotfound = 0
+Nerrorsum = 0
+for ln in tqdm(sh2.lines):
+    rix = sh1.seqsearch(ln[1], ln[2])
+    if rix is not None:
+        if not ln[5] == sh1.lines[rix][5]:
+            tqdm.write('MD5 checksum error: line {0:10d} "{1:s}"'.\
+                       format(rix, ln[2]))
+            Nerrorsum += 1
+    else:
+        Nnotfound += 1
+
+print('Not found : {0:d} files'.format(Nnotfound))
+print('ERRORS    : {0:d} files'.format(Nerrorsum))
+
+
+print('')
+print('')
