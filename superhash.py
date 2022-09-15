@@ -34,15 +34,14 @@ if not p_src.is_dir():
     sys.exit("Specified source is not a directory.")
 p_src_abs = p_src.resolve(strict=True)
 
+md5st = 'noMD5' if clargs.nohash else ''
+dts = dtn.strftime('%y%m%d_%H%M%S')
+result_file = p_src_abs.stem+"_sh"+dts+md5st+".tsv"
 if clargs.outpath is None:
-    dts = dtn.strftime('%y%m%d_%H%M%S')
-    result_file = p_src_abs.stem+"_sh"+dts+".tsv"
     p_result = Path(result_file)
 else:
     p_out = Path(clargs.outpath)
     if p_out.is_dir():
-        dts = dtn.strftime('%y%m%d_%H%M%S')
-        result_file = p_src_abs.stem+"_sh"+dts+".tsv"
         p_result = Path(p_out, result_file)
     else:
         result_file = clargs.outpath
