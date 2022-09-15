@@ -8,12 +8,8 @@
 
 __version__ = '0.1a1' 
 
-import sys
-import os
-import os.path
 import argparse
 from pathlib import PurePosixPath
-import hashlib
 from datetime import datetime
 import csv
 
@@ -111,7 +107,11 @@ cli.add_argument("file1", type=str,
                  help="first superhash file")
 cli.add_argument("file2", type=str,
                  help="2nd superhash file")
+cli.add_argument("-m", "--missing", type=str,
+                 help="file to write the list of missing entries to")
 clargs = cli.parse_args()
+
+
 
 print('')
 print("MANBAMM's superhash-check - v"+__version__+" - by M.H.V. Werts, 2022")
@@ -131,7 +131,15 @@ sh2.print_stats()
 
 print('Check data lines in File #2 against File #1')
 print('===========================================')
-Nnotfound = 0
+
+if clargs.missing is None:
+    dump_missing = False
+else:
+    dump_missing = True
+    fmiss = open(clargs.missing, 'w')
+    wrtmiss = csv.writer(fmiss, delimiter='\t', quoting=csv.QUOTE_NONE)
+
+lmissing = []
 Nerrorsum = 0
 for ln in tqdm(sh2.lines):
     rix = sh1.seqsearch(ln[1], ln[2])
@@ -141,7 +149,16 @@ for ln in tqdm(sh2.lines):
                        format(rix, ln[2]))
             Nerrorsum += 1
     else:
-        Nnotfound += 1
+        lmissing.append([ln[0].isoformat(),
+                         ln[1].as_posix(),
+                         ln[2],
+                         ln[3].isoformat(),
+                         ln[4],
+                         ln[5]])
+Nnotfound = len(lmissing)
+if dump_missing:
+    wrtmiss.writerows(lmissing)
+    fmiss.close()
 
 print('Not found : {0:d} files'.format(Nnotfound))
 print('ERRORS    : {0:d} files'.format(Nerrorsum))
