@@ -11,6 +11,7 @@ from pathlib import Path
 import hashlib
 from datetime import datetime
 import csv
+
 from tqdm import tqdm
 
 cli = argparse.ArgumentParser()
@@ -18,8 +19,8 @@ cli.add_argument("src_dir", type=str,
                  help="source directory to be scanned")
 cli.add_argument('-n', '--nohash', action='store_true',
                  help='do not calculate hashes, only generate file info tree')
-cli.add_argument("-o", "--outfile", type=str,
-                 help="pathname of result file")
+cli.add_argument("-o", "--outpath", type=str,
+                 help="path or pathname of result file")
 clargs = cli.parse_args()
 
 print('')
@@ -33,30 +34,38 @@ if not p_src.is_dir():
     sys.exit("Specified source is not a directory.")
 p_src_abs = p_src.resolve(strict=True)
 
-if clargs.outfile is None:
+if clargs.outpath is None:
     dts = dtn.strftime('%y%m%d_%H%M%S')
     result_file = p_src_abs.stem+"_sh"+dts+".tsv"
+    p_result = Path(result_file)
 else:
-    result_file = clargs.outfile
+    p_out = Path(clargs.outpath)
+    if p_out.is_dir():
+        dts = dtn.strftime('%y%m%d_%H%M%S')
+        result_file = p_src_abs.stem+"_sh"+dts+".tsv"
+        p_result = Path(p_out, result_file)
+    else:
+        result_file = clargs.outpath
+        p_result = Path(result_file)
 
-p_result = Path(result_file)
 p_result_abs = p_result.resolve(strict=False)
 
 print('Source directory:   ', str(p_src))
-print('Output file     :   ', result_file)
+print('Output file     :   ', str(p_result))
 print('')
 
-with open(result_file, 'w') as fout:
+with open(p_result, 'w') as fout:
     writer = csv.writer(fout, delimiter='\t', quoting=csv.QUOTE_NONE)
     writer.writerow(['# superhash-version', __version__])
-    writer.writerow(['# superhash-start-timestamp', dtn.isoformat()])
+    writer.writerow(['# superhash-start-timestamp-iso', dtn.isoformat()])
     writer.writerow(['# absolute-path-source-dir',p_src_abs.as_posix()])
     writer.writerow(['# absolute-path-superhash-file',p_result_abs.as_posix()])
-    writer.writerow(['# rel_path_posix',
+    writer.writerow(['# timestamp_iso',
+                     'rel_path_posix',
                      'filename',
-                     'md5digest',
+                     'mtime_iso',
                      'size',
-                     'mtime_iso'])
+                     'md5digest'])
     # sorts according to root, keeping the subdirs and files in sync
     walklist = sorted(list(os.walk(p_src_abs)))
     for root, subdirs, files in tqdm(walklist):
@@ -68,7 +77,8 @@ with open(result_file, 'w') as fout:
         for file in tqdm(sorted(files), leave = False):
             filepath = Path(root, file)
             if (filepath.resolve() == p_result_abs):
-                tqdm.write('... skipping result file itself ('+str(p_result)+')')
+                tqdm.write('... skipping result file itself ('\
+                           +str(p_result)+')')
             else:
                 fpstat = filepath.stat()
                 fpsize = fpstat.st_size
@@ -78,11 +88,13 @@ with open(result_file, 'w') as fout:
                         md5digest = ''
                     else:
                         md5digest = hashlib.md5(_file.read()).hexdigest()
-                    checksums.append([rootrel_posix,
-                                      file,
-                                      md5digest,
-                                      fpsize,
-                                      mtime_iso])
+                timestamp_iso = datetime.now().isoformat()
+                checksums.append([timestamp_iso,
+                                  rootrel_posix,
+                                  file,
+                                  mtime_iso,
+                                  fpsize,
+                                  md5digest])
         writer.writerows(checksums)
 print('')
 print('')
