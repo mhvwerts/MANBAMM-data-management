@@ -4,7 +4,7 @@ MANBAMM is a collaborative research project funded by the *Agence Nationale de l
 
 ## superhash: checking data integrity
 
-`superhash` is a utility for generating index files containing MD5 checksums of all files in the source directory and its sub-directories.
+`superhash` is a utility for generating index files containing MD5 checksums of all files in the source directory and its sub-directories. It provides a way for thoroughly testing data integrity and machine-readability of all data in the collection. It also helps to track the evolution of the catalogue of data files as the collection develops.
 
 The superhash result files contain the momentaneous list of all files in the data store, or a part of it, together with the MD5 checksum of each file. These results files are intended to be kept and accumulated externally as metadata to the data store. Data integrity can be verified by intercomparing result files taken at different moments. Also, they represent an index of all file present at the moment the superhash list was made.
 
