@@ -50,12 +50,14 @@ class SuperhashIndex:
         td = self.lines[-1][0] - self.lines[0][0]
         totaltime = td.total_seconds()
         throughp = totalbytes/(1e6*totaltime)
-        print('Superhash file :', self.shfilename)
-        print('Total indexed  : {0:d} files'.format(self.Nlines))
-        print('Total scanned  : {1:.3f} Gb ({0:d} bytes)'.format(totalbytes,
+        print('Superhash file   :', self.shfilename)
+        print('Generated on     :', self.header[1][1])
+        print('Source directory :', self.header[2][1][:50])
+        print('Total indexed    : {0:d} files'.format(self.Nlines))
+        print('Total scanned    : {1:.3f} Gb ({0:d} bytes)'.format(totalbytes,
                                                                totalbytes/1e9))
-        print('Time taken     : {0:.1f} s'.format(totaltime))
-        print('Throughput     : {0:.3f} Mb/s'.format(throughp))
+        print('Time taken       : {0:.1f} s'.format(totaltime))
+        print('Throughput       : {0:.3f} Mb/s'.format(throughp))
         print('')
         
     def seqsearch(self, path, fname):
