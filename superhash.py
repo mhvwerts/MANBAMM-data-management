@@ -3,6 +3,8 @@
 
 __version__ = '0.1a1'
 
+CHUNKSIZE = 67108864 # 64 MiB size, for hashing in chunks
+
 import sys
 import os
 import os.path
@@ -86,7 +88,10 @@ with open(p_result, 'w') as fout:
                     if clargs.nohash:
                         md5digest = ''
                     else:
-                        md5digest = hashlib.md5(_file.read()).hexdigest()
+                        cumhash = hashlib.md5()
+                        for chunk in iter(lambda: _file.read(CHUNKSIZE), b''):
+                            cumhash.update(chunk)
+                        md5digest = cumhash.hexdigest()
                 timestamp_iso = datetime.now().isoformat()
                 checksums.append([timestamp_iso,
                                   rootrel_posix,

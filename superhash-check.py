@@ -54,10 +54,10 @@ class SuperhashIndex:
         print('Generated on     :', self.header[1][1])
         print('Source directory :', self.header[2][1][:50])
         print('Total indexed    : {0:d} files'.format(self.Nlines))
-        print('Total scanned    : {1:.3f} Gb ({0:d} bytes)'.format(totalbytes,
+        print('Total scanned    : {1:.3f} GB ({0:d} bytes)'.format(totalbytes,
                                                                totalbytes/1e9))
         print('Time taken       : {0:.1f} s'.format(totaltime))
-        print('Throughput       : {0:.3f} Mb/s'.format(throughp))
+        print('Throughput       : {0:.3f} MB/s'.format(throughp))
         print('')
         
     def seqsearch(self, path, fname):
