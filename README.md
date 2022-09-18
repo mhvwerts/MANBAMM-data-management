@@ -48,7 +48,7 @@ As can be concluded from the previous paragraph, the two index files are not tre
 
 Local copies of (parts of) the datafile collection can be stored on Windows, MacOSX, or Linux. The characters allowed in file and directory names are not the same across these systems. We should therefore ensure that the names of files and directories ('pathnames') have only characters that are compatible with all systems. This can be done with the aid of `safename`.
 
-`safename` currently checks for four types of problems:
+`safename` currently identifies four types of problems:
 1. presence of 'non-printable' characters in names ('UNPRINTABLE'). Fatal error.
 2. leading or trailing whitespace (*e.g.*, spaces) in a pathname ('WHITESPACE')
 3. presence of characters  `< > : " / \ | ? *` ('BADCHARS')
