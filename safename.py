@@ -29,6 +29,8 @@ from pathlib import Path
 
 LIVEDANGEROUSLY = False # If True, will also work with filenames containing
                         # characters with codepoints under 32 (non-printable)
+KILLSYMLINKS = False    # If True, will convert symlinks to text files
+                        # containing full target pathname
 
 #%% classes and functions
 
@@ -148,11 +150,37 @@ def checkcheck(root, fdn, dftype, fixit = False):
                 pp.rename(goodpp)
             print('FIX\t**************')
 
+    #
+    # 4. SYMLINKS check
+    # 
     if pp.is_symlink():
         print('SYMLINK\t'+str(pp)+'\t'+dftype)
         if fixit and not fixed1problem:
             fixed1problem = True
-            print('FIX\t***FIX SYMLINK*** TO DO...')
+            print('FIX\t*************')
+            print('FIX\t*** symlink:')
+            print('FIX\t', str(pp))
+            print('FIX\t*** resolves to:')
+            print('FIX\t', str(pp.resolve()))
+            print('FIX\t*************')
+            if not KILLSYMLINKS:
+                print('FIX\t!! DOING NOTHING - set KILLSYMLINKS to kill and'\
+                    ' transform symlinks')
+                print('FIX\t*************')
+            else:
+                goodname = 'SYMLINK_'+fdn
+                print('FIX\t*** symlink memorial text file')
+                print('FIX\t', goodname)
+                goodpp = Path(root, goodname)
+                if goodpp.exists():
+                    print('FIX\tTARGET NAME ALREADY EXISTS')
+                else:
+                    print('FIX\tTarget name does not exist. Go ahead.')
+                    with open(goodpp, 'w') as f1:
+                        f1.write(str(pp.resolve()))
+                    pp.unlink()
+                print('FIX\t**************')
+                
         
         
 #%% main code
