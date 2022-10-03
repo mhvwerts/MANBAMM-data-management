@@ -1,0 +1,9 @@
+numpy
+scipy
+matplotlib
+pyserial
+h5py
+tqdm
+notebook
+jupyterlab
+spyder
