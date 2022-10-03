@@ -8,5 +8,6 @@ local/
 *.tar.gz
 *.tgz
 *.tsv
+*.bak
 .DS_Store
 
