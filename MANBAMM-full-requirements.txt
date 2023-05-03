@@ -3,7 +3,9 @@ scipy
 matplotlib
 pyserial
 h5py
+tifffile
 tqdm
 notebook
 jupyterlab
 spyder
+remi
