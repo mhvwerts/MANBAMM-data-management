@@ -20,7 +20,7 @@ with all systems. This can be done with the aid of `safename`.
 TODO: sync the text above with `README.md`
 """
 
-__version__ = '0.1a1'
+__version__ = '0.1a2'
 
 import sys
 import os
@@ -33,6 +33,24 @@ KILLSYMLINKS = False    # If True, will convert symlinks to text files
                         # containing full target pathname
 
 #%% classes and functions
+
+def repair(badpp, goodpp):
+    print('FIXING\t*************')
+    print('FIXING\t*** bad name:')
+    print('FIXING\t',str(badpp))
+    print('FIXING\t*************')
+    print('FIXING\t*** good name:')
+    print('FIXING\t',str(goodpp))
+    print('FIXING\t*************')
+    if goodpp.exists():
+        print('FIXING\tTARGET NAME ALREADY EXISTS. Not going ahead.')
+        print('NOT FIXED...')
+        print()
+    else:
+        print('FIXING\tTarget name does not exist. Going ahead.')
+        print('FIXED...')
+        print()
+        badpp.rename(goodpp)
 
 
 def checkcheck(root, fdn, dftype, fixit = False):
@@ -51,7 +69,7 @@ def checkcheck(root, fdn, dftype, fixit = False):
         Name of sub-directory or file.
     dftype : str
         Information (FILE/DIR) to be printed in third column of output.
-    fixit : TYPE, optional
+    fixit : boolean, optional
         Fix problems (ONE AT A TIME!!). The default is False.
 
     Returns
@@ -88,19 +106,8 @@ def checkcheck(root, fdn, dftype, fixit = False):
                     else:
                         goodname += c
                 goodpp = Path(root, goodname)
-                print('FIX\t*************')
-                print('FIX\t*** bad name:')
-                print('FIX\t',str(pp))
-                print('FIX\t*************')
-                print('FIX\t*** good name:')
-                print('FIX\t',str(goodpp))
-                print('FIX\t*************')
-                if goodpp.exists():
-                    print('FIX\tTARGET NAME ALREADY EXISTS')
-                else:
-                    print('FIX\tTarget name does not exist. Go ahead.')
-                    pp.rename(goodpp)
-                print('FIX\t**************')
+                repair(pp, goodpp)
+
      
     #
     # 2. WHITESPACE check
@@ -111,20 +118,8 @@ def checkcheck(root, fdn, dftype, fixit = False):
         if fixit and not fixed1problem:
             fixed1problem = True
             goodpp = Path(root, goodname)
-            print('FIX\t*************')
-            print('FIX\t*** bad name:')
-            print('FIX\t',str(pp))
-            print('FIX\t*************')
-            print('FIX\t*** good name:')
-            print('FIX\t',str(goodpp))
-            print('FIX\t*************')
-            if goodpp.exists():
-                print('FIX\tTARGET NAME ALREADY EXISTS')
-            else:
-                print('FIX\tTarget name does not exist. Go ahead.')
-                pp.rename(goodpp)
-            print('FIX\t**************')
-
+            repair(pp, goodpp)
+            
     #
     # 3. BADCHARS check
     # 
@@ -136,19 +131,7 @@ def checkcheck(root, fdn, dftype, fixit = False):
         if fixit and not fixed1problem:
             fixed1problem = True
             goodpp = Path(root, goodname)
-            print('FIX\t*************')
-            print('FIX\t*** bad name:')
-            print('FIX\t',str(pp))
-            print('FIX\t*************')
-            print('FIX\t*** good name:')
-            print('FIX\t',str(goodpp))
-            print('FIX\t*************')
-            if goodpp.exists():
-                print('FIX\tTARGET NAME ALREADY EXISTS')
-            else:
-                print('FIX\tTarget name does not exist. Go ahead.')
-                pp.rename(goodpp)
-            print('FIX\t**************')
+            repair(pp, goodpp)
 
     #
     # 4. SYMLINKS check
@@ -157,35 +140,57 @@ def checkcheck(root, fdn, dftype, fixit = False):
         print('SYMLINK\t'+str(pp)+'\t'+dftype)
         if fixit and not fixed1problem:
             fixed1problem = True
-            print('FIX\t*************')
-            print('FIX\t*** symlink:')
-            print('FIX\t', str(pp))
-            print('FIX\t*** resolves to:')
-            print('FIX\t', str(pp.resolve()))
-            print('FIX\t*************')
+            print('FIXING\t*************')
+            print('FIXING\t*** symlink:')
+            print('FIXING\t', str(pp))
+            print('FIXING\t*** resolves to:')
+            print('FIXING\t', str(pp.resolve()))
+            print('FIXING\t*************')
             if not KILLSYMLINKS:
-                print('FIX\t!! DOING NOTHING - set KILLSYMLINKS to kill and'\
+                print('FIXING\t!! DOING NOTHING - set KILLSYMLINKS to kill and'\
                     ' transform symlinks')
-                print('FIX\t*************')
+                print('NOT FIXED\t*************')
             else:
                 goodname = 'SYMLINK_'+fdn
-                print('FIX\t*** symlink memorial text file')
-                print('FIX\t', goodname)
+                print('FIXING\t*** symlink memorial text file')
+                print('FIXING\t', goodname)
                 goodpp = Path(root, goodname)
                 if goodpp.exists():
-                    print('FIX\tTARGET NAME ALREADY EXISTS')
+                    print('FIXING\tTARGET NAME ALREADY EXISTS')
+                    print('NOT FIXED...')
+                    print()
                 else:
-                    print('FIX\tTarget name does not exist. Go ahead.')
+                    print('FIX\tTarget name does not exist. Going ahead.')
                     with open(goodpp, 'w') as f1:
                         f1.write(str(pp.resolve()))
                     pp.unlink()
-                print('FIX\t**************')
+                    print('FIXED...')
+                    print()
                 
         
         
 #%% main code
 
-cli = argparse.ArgumentParser()
+cli = argparse.ArgumentParser(
+    description = """
+Check for compatibility problems in the names of files in a directory tree.
+    
+WARNING: with the -r / --repair option activated, this script may
+         irreversibly alter the contents of your directory tree.
+    """,
+    
+    formatter_class = argparse.RawDescriptionHelpFormatter,
+    
+    epilog =      
+    """
+safename currently identifies four types of problems:
+    1. Presence of 'non-printable' characters in names ('UNPRINTABLE'). Fatal
+       error.
+    2. Leading or trailing whitespace (*e.g.*, spaces) in a pathname 
+       ('WHITESPACE')
+    3. Presence of characters  `< > : " / \ | ? *` ('BADCHARS')
+    4. Symbolic links ('SYMLINK')
+    """)
 cli.add_argument("src_dir", type=str,
                  help="Source directory to be scanned.")
 cli.add_argument('-r', '--repair', action='store_true',
