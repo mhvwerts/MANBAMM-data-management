@@ -1,12 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# superhash-check.py and superhash.py should be same version
-# There is no backward/forward compatibility: both should be
-# the same, compatible version. This will determine the version
-# of the data file format.
+# superhash-check.py and superhash.py should ideally be same version.
+# 
+# There is not necessarily backward/forward compatibility
+# of the data file format (yet!). Efforts should be made to ensure
+# compatibility with files generated with older version. For now,
+# not really an issue.
+#
+# 
 
-__version__ = '0.1a1' 
+__version__ = '0.1a2' 
 
 import argparse
 from pathlib import PurePosixPath
@@ -27,7 +31,7 @@ class SuperhashIndex:
             if not (self.header[0][0] == '# superhash-version'):
                 raise Exception('Not a superhash file')
             if not (self.header[0][1] == __version__):
-                raise Exception('Wrong superhash version')
+                print('*** WARNING! File generated with a different version of superhash ***')
             self.lines = []
             for rawln in rdr:
                 cleanpath = PurePosixPath(*PurePosixPath(\
@@ -116,7 +120,7 @@ clargs = cli.parse_args()
 
 
 print('')
-print("MANBAMM's superhash-check - v"+__version__+" - by M.H.V. Werts, 2022")
+print("MANBAMM's superhash-check - v"+__version__+" - by M.H.V. Werts, 2022-2023")
 print("")
 
 print('FILE #1')
@@ -139,7 +143,8 @@ if clargs.missing is None:
 else:
     dump_missing = True
     fmiss = open(clargs.missing, 'w')
-    wrtmiss = csv.writer(fmiss, delimiter='\t', quoting=csv.QUOTE_NONE)
+    wrtmiss = csv.writer(fmiss, delimiter='\t', lineterminator='\n',
+                         quoting=csv.QUOTE_NONE)
 
 lmissing = []
 Nerrorsum = 0
@@ -165,6 +170,9 @@ if dump_missing:
 print('')
 print('Not found : {0:d} files (entries present in File#2 but not in File#1)'.\
       format(Nnotfound))
+if (Nnotfound > 0) and not dump_missing:
+    print('            (If you want to generate a file with a list of the')
+    print('            missing files, use the -m option).')
 print('ERRORS    : {0:d} files (MD5 checksums disagree)'.format(Nerrorsum))
 
 

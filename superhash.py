@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-__version__ = '0.1a1'
+__version__ = '0.1a2'
 
 CHUNKSIZE = 67108864 # 64 MiB size, for hashing in chunks
 
@@ -26,7 +26,7 @@ cli.add_argument("-o", "--outpath", type=str,
 clargs = cli.parse_args()
 
 print('')
-print("This is MANBAMM's superhash - v"+__version__+" - by M.H.V. Werts, 2022")
+print("This is MANBAMM's superhash - v"+__version__+" - by M.H.V. Werts, 2022-2023")
 print("")
 
 dtn = datetime.now()
@@ -56,7 +56,8 @@ print('Output file     :   ', str(p_result))
 print('')
 
 with open(p_result, 'w') as fout:
-    writer = csv.writer(fout, delimiter='\t', quoting=csv.QUOTE_NONE)
+    writer = csv.writer(fout, delimiter='\t', lineterminator='\n',
+                        quoting=csv.QUOTE_NONE)
     writer.writerow(['# superhash-version', __version__])
     writer.writerow(['# superhash-start-timestamp-iso', dtn.isoformat()])
     writer.writerow(['# absolute-path-source-dir',p_src_abs.as_posix()])

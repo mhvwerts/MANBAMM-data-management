@@ -2,7 +2,7 @@
 
 MANBAMM is a collaborative research project funded by the *Agence Nationale de la Recherche* (ANR). MANBAMM has a Data Management Plan. Scientific data generated in the project will be stored in an organized and reliable manner. Here, we start a collection of software tools, programmed in Python, to maintain, audit and catalogue MANBAMM's data store. These will be command-line tools.
 
-**WARNING!** *Make sure you have good back-ups of your data. The tools presented here are under development, and have not been thoroughly tested under 'real life' conditions. In particular, at present, they have been used only with file collections under Linux (ext4 file-system), and may not yet work properly with Windows or MacOS X.* **Use at your own risk**.
+**WARNING!** *Make sure you have good back-ups of your data. The tools presented here are under development, and have not been thoroughly tested under 'real life' conditions. In particular, at present, they have been used only with file collections under Linux (ext4) and Windows (NTFS) and may not yet work properly with MacOS X.* **Use at your own risk**.
 
 ## superhash: checking data integrity
 
@@ -43,6 +43,23 @@ Once a pair of index files of the same data set is available (these can be the s
 
 As can be concluded from the previous paragraph, the two index files are not treated symmetrically by `superhash-check`. In certain cases, it may be helpful to run `superhash-check` twice, exchanging the index files. This can happen if data sets become disorganized by changing directory names, deleting files etc. Watch out for headaches and try to keep your datasets (and its copies) organized. `superhash` does not do that for you...
 
+### superhash-check usage
+
+```
+python superhash-check.py --help
+usage: superhash-check.py [-h] [-m MISSING] file1 file2
+
+positional arguments:
+  file1                 first superhash file
+  file2                 2nd superhash file
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -m MISSING, --missing MISSING
+                        file to write the list of missing entries to
+```
+
+
 
 ## safename: filenames that are compatible across Windows, MacOSX and Linux
 
@@ -53,6 +70,35 @@ Local copies of (parts of) the datafile collection can be stored on Windows, Mac
 2. leading or trailing whitespace (*e.g.*, spaces) in a pathname ('WHITESPACE')
 3. presence of characters  `< > : " / \ | ? *` ('BADCHARS')
 4. symbolic links ('SYMLINK')
+
+### safename usage
+
+```
+python safename.py --help
+usage: safename.py [-h] [-r] src_dir
+
+Check for compatibility problems in the names of files in a directory tree.
+
+WARNING: with the -r / --repair option activated, this script may
+         irreversibly alter the contents of your directory tree.
+
+
+positional arguments:
+  src_dir       Source directory to be scanned.
+
+optional arguments:
+  -h, --help    show this help message and exit
+  -r, --repair  Fix detected problems, ONE AT A TIME.
+
+safename currently identifies four types of problems:
+    1. Presence of 'non-printable' characters in names ('UNPRINTABLE'). Fatal
+       error.
+    2. Leading or trailing whitespace (*e.g.*, spaces) in a pathname
+       ('WHITESPACE')
+    3. Presence of characters  `< > : " / \ | ? *` ('BADCHARS')
+    4. Symbolic links ('SYMLINK')
+
+```
 
 
 ## Requirements
