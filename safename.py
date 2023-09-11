@@ -161,7 +161,7 @@ def checkcheck(root, fdn, dftype, fixit = False):
                     print()
                 else:
                     print('FIX\tTarget name does not exist. Going ahead.')
-                    with open(goodpp, 'w') as f1:
+                    with open(goodpp, 'w', encoding='utf-8') as f1:
                         f1.write(str(pp.resolve()))
                     pp.unlink()
                     print('FIXED...')

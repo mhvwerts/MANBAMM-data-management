@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+# REMARK: In view of the cross-platform nature of this tool, it is necessary
+#         to explicitly specify 'utf-8' as the encoding of files, else
+#         Python will use the platform-specific encoding
+
 __version__ = '0.1a2'
 
 CHUNKSIZE = 67108864 # 64 MiB size, for hashing in chunks
@@ -26,7 +30,8 @@ cli.add_argument("-o", "--outpath", type=str,
 clargs = cli.parse_args()
 
 print('')
-print("This is MANBAMM's superhash - v"+__version__+" - by M.H.V. Werts, 2022-2023")
+print("This is MANBAMM's superhash - v"+__version__+\
+      " - by M.H.V. Werts, 2022-2023")
 print("")
 
 dtn = datetime.now()
@@ -55,7 +60,7 @@ print('Source directory:   ', str(p_src))
 print('Output file     :   ', str(p_result))
 print('')
 
-with open(p_result, 'w') as fout:
+with open(p_result, 'w', encoding='utf-8') as fout:
     writer = csv.writer(fout, delimiter='\t', lineterminator='\n',
                         quoting=csv.QUOTE_NONE)
     writer.writerow(['# superhash-version', __version__])

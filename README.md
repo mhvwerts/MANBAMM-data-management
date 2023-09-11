@@ -2,7 +2,15 @@
 
 MANBAMM is a collaborative research project funded by the *Agence Nationale de la Recherche* (ANR). MANBAMM has a Data Management Plan. Scientific data generated in the project will be stored in an organized and reliable manner. Here, we start a collection of software tools, programmed in Python, to maintain, audit and catalogue MANBAMM's data store. These will be command-line tools.
 
-**WARNING!** *Make sure you have good back-ups of your data. The tools presented here are under development, and have not been thoroughly tested under 'real life' conditions. In particular, at present, they have been used only with file collections under Linux (ext4) and Windows (NTFS) and may not yet work properly with MacOS X.* **Use at your own risk**.
+## General warning!
+**Use at your own risk**. *Make sure you have good back-ups of your data. The tools presented here are under development, and have not been thoroughly tested under 'real life' conditions. In particular, at present, they have been used only with file collections under Linux (ext4) and Windows (NTFS) and may not yet work properly with MacOS X.* 
+
+## Special warning for Windows users
+
+Windows has a [maximum path length limitation](https://learn.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation), limiting the total length of a path to a file to 260 characters. This can cause problems for data-sets in which files with long names are stored in a deep hierarchy of sub-directories. In that case, the scripts for data management may crash, citing that some file could not be found, even though it is there when you look for it.
+
+Starting from Windows 10, version 1607, the path length limitation has been removed, but you have to 'opt-in', which involves [editing the registry](https://learn.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation?tabs=powershell#enable-long-paths-in-windows-10-version-1607-and-later). For Windows 10 Pro, there is also a [GUI-guided procedure using the 'Group Policy Editor'](https://www.howtogeek.com/266621/how-to-make-windows-10-accept-file-paths-over-260-characters/) to remove the maximum path length limitation.
+
 
 ## superhash: checking data integrity
 
@@ -28,7 +36,7 @@ optional arguments:
 
 The `OUTPATH` can either specify the pathname of a file to be created (or to be overwritten) or point to a specific directory, in which then an approriately named result file is created. The latter is recommended (*i.e.* `superhash` will generate the name).
 
-Pathnames is the file are always stored in POSIX format, even on Windows systems (**TO BE TESTED**).
+The result files are always encoded in UTF-8 (what else?), and pathnames in the file are always stored in POSIX format, even on Windows systems, in order to ensure cross-platform operation.
 
 The file modification times stored in the files, like any other timestamp, are encoded in the ISO format, via `datetime.datetime.isoformat()` method, so that only very little precision is lost (microsecond precision) and the information can be read back into Python using `datetime.datetime.fromisoformat()`.
 

@@ -25,7 +25,7 @@ DROPPATHPARTS = 1 # Number of intial parts of the path to drop (ideally, 1)
 
 class SuperhashIndex:
     def __init__(self, fpn):
-        with open(fpn,'r') as fin:
+        with open(fpn, 'r', encoding='utf-8') as fin:
             rdr = csv.reader(fin, delimiter='\t', quoting=csv.QUOTE_NONE)
             self.header = [rdr.__next__() for i in range(5)]
             if not (self.header[0][0] == '# superhash-version'):
@@ -142,7 +142,7 @@ if clargs.missing is None:
     dump_missing = False
 else:
     dump_missing = True
-    fmiss = open(clargs.missing, 'w')
+    fmiss = open(clargs.missing, 'w', encoding='utf-8')
     wrtmiss = csv.writer(fmiss, delimiter='\t', lineterminator='\n',
                          quoting=csv.QUOTE_NONE)
 
