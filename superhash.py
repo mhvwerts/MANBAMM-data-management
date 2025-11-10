@@ -5,7 +5,7 @@
 #         to explicitly specify 'utf-8' as the encoding of files, else
 #         Python will use the platform-specific encoding
 
-__version__ = '0.1a2'  # For now, the version number represents the version of the data-format.
+__version__ = '0.1a3'  
 
 CHUNKSIZE = 67108864 # 64 MiB size, for hashing in chunks
 
