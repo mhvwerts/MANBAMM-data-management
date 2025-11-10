@@ -5,7 +5,7 @@
 #         to explicitly specify 'utf-8' as the encoding of files, else
 #         Python will use the platform-specific encoding
 
-__version__ = '0.1a2'
+__version__ = '0.1a2'  # For now, the version number represents the version of the data-format.
 
 CHUNKSIZE = 67108864 # 64 MiB size, for hashing in chunks
 
@@ -31,7 +31,7 @@ clargs = cli.parse_args()
 
 print('')
 print("This is MANBAMM's superhash - v"+__version__+\
-      " - by M.H.V. Werts, 2022-2023")
+      " - by M.H.V. Werts, 2022-2025")
 print("")
 
 dtn = datetime.now()

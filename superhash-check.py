@@ -10,7 +10,7 @@
 #
 # 
 
-__version__ = '0.1a2' 
+__version__ = '0.1a3'
 
 import argparse
 from pathlib import PurePosixPath
@@ -32,6 +32,7 @@ class SuperhashIndex:
                 raise Exception('Not a superhash file')
             if not (self.header[0][1] == __version__):
                 print('*** WARNING! File generated with a different version of superhash ***')
+                print('    File generated with v'+self.header[0][1]+', current software v'+__version__)
             self.lines = []
             for rawln in rdr:
                 cleanpath = PurePosixPath(*PurePosixPath(\
@@ -120,7 +121,7 @@ clargs = cli.parse_args()
 
 
 print('')
-print("MANBAMM's superhash-check - v"+__version__+" - by M.H.V. Werts, 2022-2023")
+print("MANBAMM's superhash-check - v"+__version__+" - by M.H.V. Werts, 2022-2025")
 print("")
 
 print('FILE #1')
@@ -168,13 +169,23 @@ if dump_missing:
     fmiss.close()
 
 print('')
-print('Not found : {0:d} files (entries present in File#2 but not in File#1)'.\
-      format(Nnotfound))
-if (Nnotfound > 0) and not dump_missing:
-    print('            (If you want to generate a file with a list of the')
-    print('            missing files, use the -m option).')
-print('ERRORS    : {0:d} files (MD5 checksums disagree)'.format(Nerrorsum))
+print()
+print('RESULT')
+print('======')
 
+if (Nnotfound > 0):
+    print('Not found : {0:d} files (entries present in File#2 but not in File#1)'.\
+          format(Nnotfound))
+    if not dump_missing:
+        print('            (If you want to generate a file with a list of the')
+        print('            missing files, use the -m option).')
+else:
+    print('All entries in File#2 are present in File#1. Good!')
+    
+if (Nerrorsum > 0):    
+    print('ERRORS    : {0:d} files (MD5 checksums disagree)'.format(Nerrorsum))
+else:
+    print('All MD5 checksums are good! No errors detected.')
 
 print('')
 print('')
