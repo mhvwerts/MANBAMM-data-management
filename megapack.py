@@ -145,14 +145,25 @@ def main():
                         
                     print(f"Zipping to {zip_path}")
                     compress_directory(dir_path, zip_path)
+                    
+                    # Verify integrity before destroying the original
+                    with zipfile.ZipFile(zip_path) as zf:
+                        bad_file = zf.testzip()
+                        original_file_count = sum(1 for f in dir_path.rglob('*') if f.is_file())
+                        if bad_file or len(zf.namelist()) != original_file_count:
+                            print(f"ERROR: verification failed for {zip_path}, leaving {dir_path} untouched.")
+                            continue
+                    print('Zip OK')
+                    
                     if backup_root:
                         backup_path = backup_root / dir_path.relative_to(root)
                         backup_path.parent.mkdir(parents=True, exist_ok=True)
                         shutil.move(str(dir_path), str(backup_path))
                         print(f"Moved {dir_path} -> {backup_path}")
                     else:
-                        shutil.rmtree(dir_path)
-                        print(f"Deleted {dir_path}")
+                        raise NotImplementedError("Source directory deletion will only be implemented when code sufficiently stress-tested in real-life situations")
+                        # shutil.rmtree(dir_path)
+                        # print(f"Deleted {dir_path}")
             else:
                 print()
                 print(60*'*')
