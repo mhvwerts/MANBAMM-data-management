@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""
+r"""
 ## safename: filenames that are compatible across Windows, MacOSX and Linux
 
 Local copies of (parts of) the datafile collection can be stored on Windows, 
@@ -181,8 +181,7 @@ WARNING: with the -r / --repair option activated, this script may
     
     formatter_class = argparse.RawDescriptionHelpFormatter,
     
-    epilog =      
-    """
+    epilog = r"""
 safename currently identifies four types of problems:
     1. Presence of 'non-printable' characters in names ('UNPRINTABLE'). Fatal
        error.
