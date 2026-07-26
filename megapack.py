@@ -39,6 +39,7 @@ def scan_directory(root, file_count_threshold, file_size_threshold):
 
     print()  # Newline after progress
     return qualifying_dirs
+    
 
 def main():
     parser = argparse.ArgumentParser(description="Identify and compress directories with large numbers of small files.")
@@ -51,7 +52,9 @@ def main():
                         help="Backup directory to move processed directories to (default: None, will delete)")
     parser.add_argument("--dry-run", action="store_true", default=False,
                         help="Simulate actions without making changes (default: False)")
-    # TODO: add execute flag
+    parser.add_argument("--execute", action="store_true", default=False,
+                        help="Execute actions (default: False, requires confirmation)")
+    # TODO add --only-scan keyword (default False)
     args = parser.parse_args()
 
     root = Path(args.directory)
@@ -67,7 +70,8 @@ def main():
     file_count_threshold = args.file_count_threshold
     file_size_threshold = args.file_size_threshold
     dry_run = args.dry_run
-    execute = False # TODO: add execute flag argument to parser (see TODO above)
+    execute = args.execute
+    only_scan = False # TODO add --only-scan keyword (default False)
 
     qualifying_dirs = scan_directory(root, file_count_threshold, file_size_threshold)
 
@@ -83,48 +87,67 @@ def main():
     if not fully_qualifying:
         print("No directories to process.")
         return
+    
+    # Category 2: Directories with large files
+    print("\n=== Potentially Qualifying Directories with Large Files ===")
+    large_files = [
+        d for d in qualifying_dirs
+        if d["largest_file_size"] > file_size_threshold
+    ]
+    for d in large_files:
+        print(f"WARNING (contains large files):\t{d['path']}")
 
-    # Simulate or perform actions
-    print("\n=== Actions to Perform ===")
-    for d in fully_qualifying:
-        dir_path = Path(d["path"])
-        zip_path = dir_path.with_suffix('.zip')
+    # Category 3: Directories with subdirectories
+    print("\n=== Potentially Qualifying Directories with Subdirectories ===")
+    with_subdirs = [
+        d for d in qualifying_dirs
+        if d["has_subdirs"]
+    ]
+    for d in with_subdirs:
+        print(f"WARNING (contains subdirectories):\t{d['path']}")
+    
+    if not only_scan:
+        # Simulate or perform actions
+        print("\n=== Actions to Perform ===")
+        for d in fully_qualifying:
+            dir_path = Path(d["path"])
+            zip_path = dir_path.with_suffix('.zip')
 
-        if dry_run:
-            print(f"[DRY RUN] Compress {dir_path} -> {zip_path}")
-            if backup_root:
-                backup_path = backup_root / dir_path.relative_to(root)
-                print(f"[DRY RUN] Move {dir_path} -> {backup_path}")
-            else:
-                print(f"[DRY RUN] Delete {dir_path}")
-        else:
-            print(f"Compress {dir_path} -> {zip_path}")
-            print(f"Move {dir_path} -> {backup_root / dir_path.relative_to(root)}" if backup_root else f"Delete {dir_path}")
-
-    if not dry_run:
-        if execute:
-            confirm = input("\nProceed with changes? [y/N]: ").strip().lower()
-            if confirm != 'y':
-                print("Aborted.")
-                return
-
-            for d in fully_qualifying:
-                dir_path = Path(d["path"])
-                zip_path = dir_path.with_suffix('.zip')
-                compress_directory(dir_path, zip_path)
+            if dry_run:
+                print(f"[DRY RUN] Compress {dir_path} -> {zip_path}")
                 if backup_root:
                     backup_path = backup_root / dir_path.relative_to(root)
-                    backup_path.parent.mkdir(parents=True, exist_ok=True)
-                    shutil.move(str(dir_path), str(backup_path))
-                    print(f"Moved {dir_path} -> {backup_path}")
+                    print(f"[DRY RUN] Move {dir_path} -> {backup_path}")
                 else:
-                    shutil.rmtree(dir_path)
-                    print(f"Deleted {dir_path}")
-        else:
-            print()
-            print(60*'*')
-            print("Plans aborted! If you really want to proceed, please supply the '--execute' flag on the command line")
-            print(60*'*')
+                    print(f"[DRY RUN] Delete {dir_path}")
+            else:
+                print(f"Compress {dir_path} -> {zip_path}")
+                print(f"Move {dir_path} -> {backup_root / dir_path.relative_to(root)}" if backup_root else f"Delete {dir_path}")
+
+        if not dry_run:
+            if execute:
+                confirm = input("\nProceed with changes? [y/N]: ").strip().lower()
+                if confirm != 'y':
+                    print("Aborted.")
+                    return
+
+                for d in fully_qualifying:
+                    dir_path = Path(d["path"])
+                    zip_path = dir_path.with_suffix('.zip')
+                    compress_directory(dir_path, zip_path)
+                    if backup_root:
+                        backup_path = backup_root / dir_path.relative_to(root)
+                        backup_path.parent.mkdir(parents=True, exist_ok=True)
+                        shutil.move(str(dir_path), str(backup_path))
+                        print(f"Moved {dir_path} -> {backup_path}")
+                    else:
+                        shutil.rmtree(dir_path)
+                        print(f"Deleted {dir_path}")
+            else:
+                print()
+                print(60*'*')
+                print("Plans aborted! If you really want to proceed, please supply the '--execute' flag on the command line")
+                print(60*'*')
 
 if __name__ == "__main__":
     main()
