@@ -3,8 +3,8 @@ import argparse
 # import zipfile
 from pathlib import Path
 
-DEFAULT_FILECOUNT_THRESH = 50
-DEFAULT_FILESIZE_THRESH = 10_000_000
+DEFAULT_FILECOUNT_THRESH = 40
+DEFAULT_FILESIZE_THRESH = 12_000_000
 
 def compress_directory(dir_path, zip_path):
     """Compress a directory into a ZIP file."""
@@ -13,7 +13,7 @@ def compress_directory(dir_path, zip_path):
             if file.is_file():
                 zipf.write(file, arcname=file.relative_to(dir_path))
 
-def scan_directory(root, file_count_threshold, file_size_threshold):
+def scan_directory(root, file_count_threshold):
     qualifying_dirs = []
 
     print("Counting directories...")
@@ -74,22 +74,9 @@ def main():
     execute = args.execute
     scan_only = args.scan_only
 
-    qualifying_dirs = scan_directory(root, file_count_threshold, file_size_threshold)
-
-    # Category 1: Fully qualifying directories
-    print("\n=== Fully Qualifying Directories ===")
-    fully_qualifying = [
-        d for d in qualifying_dirs
-        if d["largest_file_size"] <= file_size_threshold and not d["has_subdirs"]
-    ]
-    for d in fully_qualifying:
-        print(d["path"])
-
-    if not fully_qualifying:
-        print("*** No fully qualifying directories!")
+    qualifying_dirs = scan_directory(root, file_count_threshold)
 
     # Category 2: Directories with large files
-    print()
     print("\n=== Potentially Qualifying Directories with Large Files ===")
     large_files = [
         d for d in qualifying_dirs
@@ -108,13 +95,23 @@ def main():
     for d in with_subdirs:
         print(f"WARNING (contains subdirectories):\t{d['path']}")
 
-    if not fully_qualifying:
-        print()
-        print("*** No fully qualifying directories! Nothing to process...")
-        return
+    # Category 1: Fully qualifying directories
+    print()
+    print("\n=== Fully Qualifying Directories ===")
+    fully_qualifying = [
+        d for d in qualifying_dirs
+        if d["largest_file_size"] <= file_size_threshold and not d["has_subdirs"]
+    ]
+    for d in fully_qualifying:
+        print(d["path"])
 
     if not scan_only:
         # Simulate or perform actions
+        if not fully_qualifying:
+            print()
+            print("*** No fully qualifying directories! Nothing to process...")
+            return
+        
         print("\n=== Actions to Perform ===")
         for d in fully_qualifying:
             dir_path = Path(d["path"])
