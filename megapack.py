@@ -74,6 +74,10 @@ def main():
                         help="Execute actions (default: False, requires confirmation)")
     parser.add_argument("--scan-only", action="store_true", default=False,
                         help="Only scan the directory tree (default: False)")
+    parser.add_argument("--zip-overwrite", action="store_true", default=False,
+                        help="Overwrite a pre-existing target zip instead of skipping the directory "
+                             "(default: False). Useful to retry a directory whose zip was left "
+                             "incomplete/corrupt by an interrupted (e.g. Ctrl-C) or failed previous run.")
     args = parser.parse_args()
 
     print("*" * 60)
@@ -99,6 +103,7 @@ def main():
     dry_run = args.dry_run
     execute = args.execute
     scan_only = args.scan_only
+    zip_overwrite = args.zip_overwrite
 
     qualifying_dirs = scan_directory(root, file_count_threshold)
 
@@ -161,13 +166,17 @@ def main():
                     print("Aborted.")
                     return
 
+                print()
                 for d in fully_qualifying:
                     dir_path = Path(d["path"])
                     zip_path = dir_path.parent / (dir_path.name + '.zip')
 
                     if zip_path.exists():
-                        print(f"SKIPPING {dir_path}: target zip {zip_path} already exists.")
-                        continue
+                        if zip_overwrite:
+                            print(f"Overwriting existing zip {zip_path}")
+                        else:
+                            print(f"SKIPPING (no '--zip-overwrite'). Target zip already exists: {dir_path} -> {zip_path}")
+                            continue
                         
                     print(f"Zipping to {zip_path}")
                     compress_directory(dir_path, zip_path)
