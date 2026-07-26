@@ -54,7 +54,8 @@ def main():
                         help="Simulate actions without making changes (default: False)")
     parser.add_argument("--execute", action="store_true", default=False,
                         help="Execute actions (default: False, requires confirmation)")
-    # TODO add --only-scan keyword (default False)
+    parser.add_argument("--scan-only", action="store_true", default=False,
+                        help="Only scan the directory tree (default: False)")
     args = parser.parse_args()
 
     root = Path(args.directory)
@@ -71,7 +72,7 @@ def main():
     file_size_threshold = args.file_size_threshold
     dry_run = args.dry_run
     execute = args.execute
-    only_scan = False # TODO add --only-scan keyword (default False)
+    scan_only = args.scan_only
 
     qualifying_dirs = scan_directory(root, file_count_threshold, file_size_threshold)
 
@@ -106,7 +107,7 @@ def main():
     for d in with_subdirs:
         print(f"WARNING (contains subdirectories):\t{d['path']}")
     
-    if not only_scan:
+    if not scan_only:
         # Simulate or perform actions
         print("\n=== Actions to Perform ===")
         for d in fully_qualifying:
