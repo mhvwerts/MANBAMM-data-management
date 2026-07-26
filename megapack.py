@@ -1,3 +1,21 @@
+"""
+megapack.py
+
+*** EXPERIMENTAL SCRIPT - USE AT YOUR OWN RISK ***
+
+This script scans a directory tree, identifies directories containing
+large numbers of small files, and compresses them into ZIP archives -
+moving the originals to a backup location, or (once fully validated)
+deleting them outright.
+
+This is still under active testing. It has not been battle-tested
+against a wide variety of real-world directory structures, filesystems,
+or failure modes. Source-directory deletion is currently disabled
+(NotImplementedError) until the compress/verify path has seen more
+real-world use. Always test with --dry-run and/or --backup-dir first,
+and never point this at data you don't have a separate backup of.
+"""
+
 import argparse
 import shutil
 import zipfile
@@ -57,6 +75,14 @@ def main():
     parser.add_argument("--scan-only", action="store_true", default=False,
                         help="Only scan the directory tree (default: False)")
     args = parser.parse_args()
+
+    print("*" * 60)
+    print("megapack.py - EXPERIMENTAL SCRIPT - USE AT YOUR OWN RISK")
+    print("This tool can compress, move, and (in future) delete real")
+    print("directories. It has not been fully validated. Make sure you")
+    print("have independent backups before running with --execute.")
+    print("*" * 60)
+    print()
 
     root = Path(args.directory)
     if not root.exists():
@@ -146,13 +172,21 @@ def main():
                     print(f"Zipping to {zip_path}")
                     compress_directory(dir_path, zip_path)
                     
-                    # Verify integrity before destroying the original
+                    # Verify integrity before destroying the original.
+                    # On failure we raise rather than skip: the corrupt zip is left
+                    # behind next to the intact source directory. Remove the zip
+                    # manually before re-running, or the next run will treat it as
+                    # already-processed and skip the directory with a
+                    # "target zip already exists" message.
                     with zipfile.ZipFile(zip_path) as zf:
                         bad_file = zf.testzip()
                         original_file_count = sum(1 for f in dir_path.rglob('*') if f.is_file())
                         if bad_file or len(zf.namelist()) != original_file_count:
-                            print(f"ERROR: verification failed for {zip_path}, leaving {dir_path} untouched.")
-                            continue
+                            raise RuntimeError(
+                                f"Verification failed for {zip_path} (source: {dir_path}). "
+                                f"The source directory was left untouched. Delete the corrupt "
+                                f"zip before re-running, or it will be skipped as already-processed."
+                            )
                     print('Zip OK')
                     
                     if backup_root:
@@ -161,7 +195,7 @@ def main():
                         shutil.move(str(dir_path), str(backup_path))
                         print(f"Moved {dir_path} -> {backup_path}")
                     else:
-                        raise NotImplementedError("Source directory deletion will only be implemented when code sufficiently stress-tested in real-life situations")
+                        raise NotImplementedError("Please supply a '--backup-dir'. Source directory deletion will only be implemented when code sufficiently stress-tested in real-life situations.")
                         # shutil.rmtree(dir_path)
                         # print(f"Deleted {dir_path}")
             else:
