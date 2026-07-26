@@ -1,6 +1,6 @@
 import argparse
-# import shutil
-# import zipfile
+import shutil
+import zipfile
 from pathlib import Path
 
 DEFAULT_FILECOUNT_THRESH = 40
@@ -142,7 +142,8 @@ def main():
                     if zip_path.exists():
                         print(f"SKIPPING {dir_path}: target zip {zip_path} already exists.")
                         continue
-
+                        
+                    print(f"Zipping to {zip_path}")
                     compress_directory(dir_path, zip_path)
                     if backup_root:
                         backup_path = backup_root / dir_path.relative_to(root)
