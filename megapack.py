@@ -86,10 +86,10 @@ def main():
         print(d["path"])
 
     if not fully_qualifying:
-        print("No directories to process.")
-        return
-    
+        print("*** No fully qualifying directories!")
+
     # Category 2: Directories with large files
+    print()
     print("\n=== Potentially Qualifying Directories with Large Files ===")
     large_files = [
         d for d in qualifying_dirs
@@ -99,6 +99,7 @@ def main():
         print(f"WARNING (contains large files):\t{d['path']}")
 
     # Category 3: Directories with subdirectories
+    print()
     print("\n=== Potentially Qualifying Directories with Subdirectories ===")
     with_subdirs = [
         d for d in qualifying_dirs
@@ -106,13 +107,18 @@ def main():
     ]
     for d in with_subdirs:
         print(f"WARNING (contains subdirectories):\t{d['path']}")
-    
+
+    if not fully_qualifying:
+        print()
+        print("*** No fully qualifying directories! Nothing to process...")
+        return
+
     if not scan_only:
         # Simulate or perform actions
         print("\n=== Actions to Perform ===")
         for d in fully_qualifying:
             dir_path = Path(d["path"])
-            zip_path = dir_path.with_suffix('.zip')
+            zip_path = dir_path.parent / (dir_path.name + '.zip')
 
             if dry_run:
                 print(f"[DRY RUN] Compress {dir_path} -> {zip_path}")
@@ -134,7 +140,12 @@ def main():
 
                 for d in fully_qualifying:
                     dir_path = Path(d["path"])
-                    zip_path = dir_path.with_suffix('.zip')
+                    zip_path = dir_path.parent / (dir_path.name + '.zip')
+
+                    if zip_path.exists():
+                        print(f"SKIPPING {dir_path}: target zip {zip_path} already exists.")
+                        continue
+
                     compress_directory(dir_path, zip_path)
                     if backup_root:
                         backup_path = backup_root / dir_path.relative_to(root)
