@@ -12,6 +12,15 @@ Windows has a [maximum path length limitation](https://learn.microsoft.com/en-us
 Starting from Windows 10, version 1607, the path length limitation has been removed, but you have to 'opt-in', which involves [editing the registry](https://learn.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation?tabs=powershell#enable-long-paths-in-windows-10-version-1607-and-later). For Windows 10 Pro, there is also a [GUI-guided procedure using the 'Group Policy Editor'](https://www.howtogeek.com/266621/how-to-make-windows-10-accept-file-paths-over-260-characters/) to remove the maximum path length limitation.
 
 
+## Requirements
+
+At present, the only "non-standard" library to be installed is ``tqdm``. This is specified in ``requirements.txt``.
+
+In this repository, we also include a file ``MANBAMM-full-requirements.txt`` which contains the full list of ``conda`` packages (``conda-forge`` channel) that a standard MANBAMM Python installation needs.
+
+
+---
+
 ## superhash: checking data integrity
 
 `superhash` is a utility for generating index files containing MD5 checksums of all files in the source directory and its sub-directories. It provides a way for thoroughly testing data integrity and machine-readability of all data in the collection. It also helps to track the evolution of the catalogue of data files as the collection develops.
@@ -67,7 +76,7 @@ optional arguments:
                         file to write the list of missing entries to
 ```
 
-
+---
 
 ## safename: filenames that are compatible across Windows, MacOSX and Linux
 
@@ -109,9 +118,45 @@ safename currently identifies four types of problems:
 ```
 
 
-## Requirements
+---
 
-At present, the only "non-standard" library to be installed is ``tqdm``. This is specified in ``requirements.txt``.
+## megapack: pack directories containing many small data files into ZIP files
 
-In this repository, we also include a file ``MANBAMM-full-requirements.txt`` which contains the full list of ``conda`` packages (``conda-forge`` channel) that a standard MANBAMM Python installation needs.
 
+### megapack usage
+
+```
+python megapack.py --help
+usage: megapack.py [-h] [--file-count-threshold FILE_COUNT_THRESHOLD]
+                   [--file-size-threshold FILE_SIZE_THRESHOLD]
+                   [--backup-dir BACKUP_DIR] [--dry-run] [--execute]
+                   [--scan-only] [--zip-overwrite] directory
+
+Identify and compress directories with large numbers of small files.
+
+positional arguments:
+  directory             Root directory to scan
+
+options:
+  -h, --help            show this help message and exit
+  --file-count-threshold FILE_COUNT_THRESHOLD
+                        Minimum file count threshold (default: 40)
+  --file-size-threshold FILE_SIZE_THRESHOLD
+                        File size threshold in bytes (default: 12,000,000 bytes)
+  --backup-dir BACKUP_DIR
+                        Backup directory to move processed directories to 
+                        (default: None, will delete)
+  --dry-run             Simulate actions without making changes (default: False)
+  --execute             Execute actions (default: False, requires confirmation)
+  --scan-only           Only scan the directory tree (default: False)
+  --zip-overwrite       Overwrite a pre-existing target zip instead of skipping 
+                        the directory (default: False). Useful to retry a 
+                        directory whose zip was left incomplete/corrupt by an
+                        interrupted (e.g. Ctrl-C) or failed previous run.
+```
+
+### Examples of actual use
+
+```
+python .\megapack.py K:\MANBAMM_archive\MANBAMM_last260727 --execute --file-count-threshold 100 --backup-dir K:\MANBAMM_archive\MANBAMM_last260727_BAK
+```
