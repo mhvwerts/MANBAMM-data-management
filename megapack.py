@@ -24,12 +24,34 @@ from pathlib import Path
 DEFAULT_FILECOUNT_THRESH = 40
 DEFAULT_FILESIZE_THRESH = 12_000_000
 
-def compress_directory(dir_path, zip_path):
-    """Compress a directory into a ZIP file."""
-    with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-        for file in dir_path.rglob('*'):
+
+def compress_directory(dir_path, zip_path, manifest=False):
+    """Pack a directory into a store-only ZIP file (without data 
+    compression).
+
+    Assumes dir_path contains only files (no subdirectories) - the
+    caller is responsible for filtering out any nested directories
+    beforehand.
+
+    If manifest is True, also write a tab-delimited manifest file
+    (same name as zip_path, with '.manifest.txt' as suffix) listing
+    each archived file's name, byte offset, size, and CRC-32.
+    """
+    with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_STORED) as zipf:
+        for file in dir_path.iterdir():
             if file.is_file():
-                zipf.write(file, arcname=file.relative_to(dir_path))
+                zipf.write(file, arcname=file.name)
+
+        if manifest:
+            manifest_path = zip_path.with_suffix('.manifest.txt')
+            with manifest_path.open('w') as f:
+                f.write("filename\tbyte_offset\tfile_size\tcrc32\n")
+                for info in zipf.infolist():
+                    f.write(
+                        f"{info.filename}\t{info.header_offset}\t"
+                        f"{info.file_size}\t{info.CRC:08x}\n"
+                    )
+
 
 def scan_directory(root, file_count_threshold):
     qualifying_dirs = []
@@ -179,7 +201,7 @@ def main():
                             continue
                         
                     print(f"Zipping to {zip_path}")
-                    compress_directory(dir_path, zip_path)
+                    compress_directory(dir_path, zip_path, manifest=True)
                     
                     # Verify integrity before destroying the original.
                     # On failure we raise rather than skip: the corrupt zip is left
