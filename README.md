@@ -127,36 +127,40 @@ safename currently identifies four types of problems:
 
 ```
 python megapack.py --help
-usage: megapack.py [-h] [--file-count-threshold FILE_COUNT_THRESHOLD]
-                   [--file-size-threshold FILE_SIZE_THRESHOLD]
-                   [--backup-dir BACKUP_DIR] [--dry-run] [--execute]
-                   [--scan-only] [--zip-overwrite] directory
+usage: megapack.py [-h] [--file-count-threshold FILE_COUNT_THRESHOLD] [--file-size-threshold FILE_SIZE_THRESHOLD]
+                   [--backup-dir BACKUP_DIR] [--dry-run] [--execute] [--scan-only] [--zip-overwrite]
+                   directory
 
-Identify and compress directories with large numbers of small files.
+Identify with large numbers of small files and pack them into ZIP files without compression.
 
 positional arguments:
   directory             Root directory to scan
 
 options:
-  -h, --help            show this help message and exit
+  -h, --help             show this help message and exit
   --file-count-threshold FILE_COUNT_THRESHOLD
                         Minimum file count threshold (default: 40)
   --file-size-threshold FILE_SIZE_THRESHOLD
-                        File size threshold in bytes (default: 12,000,000 bytes)
+                        File size threshold in bytes (default: 12,000,000 
+                        bytes)
   --backup-dir BACKUP_DIR
-                        Backup directory to move processed directories to 
-                        (default: None, will delete)
-  --dry-run             Simulate actions without making changes (default: False)
-  --execute             Execute actions (default: False, requires confirmation)
+                        Backup directory to which processed directories are 
+                        moved (default: None, will delete sources)
+  --dry-run             Simulate actions without making changes 
+                        (default: False)
+  --execute             Execute actions 
+                        (default: False, requires confirmation)
   --scan-only           Only scan the directory tree (default: False)
-  --zip-overwrite       Overwrite a pre-existing target zip instead of skipping 
-                        the directory (default: False). Useful to retry a 
-                        directory whose zip was left incomplete/corrupt by an
-                        interrupted (e.g. Ctrl-C) or failed previous run.
+  --zip-overwrite       Overwrite a pre-existing target zip instead of
+                        skipping the directory (default: False). Useful to
+                        retry a directory whose zip was left incomplete or
+                        corrupted by an interrupted (e.g. Ctrl-C) or failed
+                        previous run.
+
 ```
 
 ### Examples of actual use
 
 ```
-python .\megapack.py K:\MANBAMM_archive\MANBAMM_last260727 --execute --file-count-threshold 100 --backup-dir K:\MANBAMM_archive\MANBAMM_last260727_BAK
+python .\megapack.py H:\experimental-data-260727 --execute --file-count-threshold 100 --file-size-threshold 20000000 --backup-dir H:\experimental-data-260727_megapack_bak   
 ```

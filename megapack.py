@@ -82,14 +82,14 @@ def scan_directory(root, file_count_threshold):
     
 
 def main():
-    parser = argparse.ArgumentParser(description="Identify and compress directories with large numbers of small files.")
+    parser = argparse.ArgumentParser(description="Identify with large numbers of small files and pack them into ZIP files without compression.")
     parser.add_argument("directory", type=str, help="Root directory to scan")
     parser.add_argument("--file-count-threshold", type=int, default=DEFAULT_FILECOUNT_THRESH,
                         help=f"Minimum file count threshold (default: {DEFAULT_FILECOUNT_THRESH:d})")
     parser.add_argument("--file-size-threshold", type=int, default=DEFAULT_FILESIZE_THRESH,
                         help=f"File size threshold in bytes (default: {DEFAULT_FILESIZE_THRESH:,} bytes)")
     parser.add_argument("--backup-dir", type=str, default=None,
-                        help="Backup directory to move processed directories to (default: None, will delete)")
+                        help="Backup directory to which processed directories are moved (default: None, will delete sources)")
     parser.add_argument("--dry-run", action="store_true", default=False,
                         help="Simulate actions without making changes (default: False)")
     parser.add_argument("--execute", action="store_true", default=False,
