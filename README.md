@@ -11,6 +11,8 @@ Windows has a [maximum path length limitation](https://learn.microsoft.com/en-us
 
 Starting from Windows 10, version 1607, the path length limitation has been removed, but you have to 'opt-in', which involves [editing the registry](https://learn.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation?tabs=powershell#enable-long-paths-in-windows-10-version-1607-and-later). For Windows 10 Pro, there is also a [GUI-guided procedure using the 'Group Policy Editor'](https://www.howtogeek.com/266621/how-to-make-windows-10-accept-file-paths-over-260-characters/) to remove the maximum path length limitation.
 
+Based on current information (Summer 2026), this feature also affects Windows 11, requiring specific 'opt-in' action to remove the 260-character limit and enable long paths.
+
 
 ## Requirements
 
