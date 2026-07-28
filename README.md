@@ -133,7 +133,7 @@ usage: megapack.py [-h] [--file-count-threshold FILE_COUNT_THRESHOLD] [--file-si
                    [--backup-dir BACKUP_DIR] [--dry-run] [--execute] [--scan-only] [--zip-overwrite]
                    directory
 
-Identify with large numbers of small files and pack them into ZIP files without compression.
+Identify  directories with large numbers of small files and pack them into ZIP files without compression.
 
 positional arguments:
   directory             Root directory to scan
