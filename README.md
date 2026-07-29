@@ -127,6 +127,12 @@ safename currently identifies four types of problems:
 
 ### megapack usage
 
+Certain experiments in the MANBAMM project and other projects in our lab generate large numbers of small data files for each run (e.g., optical spectra as a function of time). They are typically stored in a specific data directory. It is a hassle to manage such data-sets: transferring, indexing and backing up can be slow, etc. 
+
+We strive to pre-process these collections of datafiles on the specific instrument, typically compiling the raw data (which may be in some proprietary vendor-specific format) into single HDF5 files. These HDF5 files are much more easily managed, store data efficiently and can be read using standard libraries and software.
+
+In certain cases, however, we still find ourselves with collections of data folders containing many small files. For these cases, we now have `megapack`.
+
 ```
 python megapack.py --help
 usage: megapack.py [-h] [--file-count-threshold FILE_COUNT_THRESHOLD] [--file-size-threshold FILE_SIZE_THRESHOLD]
