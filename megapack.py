@@ -91,7 +91,7 @@ def main():
     parser.add_argument("--backup-dir", type=str, default=None,
                         help="Backup directory to which processed directories are moved (default: None, will delete sources)")
     parser.add_argument("--dry-run", action="store_true", default=False,
-                        help="Simulate actions without making changes (default: False)")
+                        help="Simulate actions without applying changes (default: False)")
     parser.add_argument("--execute", action="store_true", default=False,
                         help="Execute actions (default: False, requires confirmation)")
     parser.add_argument("--scan-only", action="store_true", default=False,
@@ -130,41 +130,42 @@ def main():
     qualifying_dirs = scan_directory(root, file_count_threshold)
 
     # Category 2: Directories with large files
-    print("\n=== Potentially Qualifying Directories with Large Files ===")
+    print("\n=== Potentially qualifying directories with large files ===")
     large_files = [
         d for d in qualifying_dirs
         if d["largest_file_size"] > file_size_threshold
-    ]
+        ]
     for d in large_files:
-        print(f"WARNING (contains large files):\t{d['path']}")
+        print(f"WARNING (large files):\t{d['path']}")
 
     # Category 3: Directories with subdirectories
     print()
-    print("\n=== Potentially Qualifying Directories with Subdirectories ===")
+    print("\n=== Potentially qualifying directories with subdirectories ===")
     with_subdirs = [
         d for d in qualifying_dirs
         if d["has_subdirs"]
-    ]
+        ]
     for d in with_subdirs:
-        print(f"WARNING (contains subdirectories):\t{d['path']}")
+        print(f"WARNING (subdirectories):\t{d['path']}")
 
     # Category 1: Fully qualifying directories
     print()
-    print("\n=== Fully Qualifying Directories ===")
+    print("\n=== Fully qualifying directories to be processed ===")
     fully_qualifying = [
         d for d in qualifying_dirs
         if d["largest_file_size"] <= file_size_threshold and not d["has_subdirs"]
-    ]
-    for d in fully_qualifying:
-        print(d["path"])
+        ] 
+    
+    if not fully_qualifying:
+        print("*** No fully qualifying directories! Nothing to process...")
+        print()
+        return
+    else:
+        for d in fully_qualifying:
+            print(d["path"])
 
     if not scan_only:
         # Simulate or perform actions
-        if not fully_qualifying:
-            print()
-            print("*** No fully qualifying directories! Nothing to process...")
-            return
-        
         print("\n=== Actions to Perform ===")
         for d in fully_qualifying:
             dir_path = Path(d["path"])
@@ -183,11 +184,10 @@ def main():
 
         if not dry_run:
             if execute:
-                confirm = input("\nProceed with changes? [y/N]: ").strip().lower()
+                confirm = input("\nProceed as planned? [y/N]: ").strip().lower()
                 if confirm != 'y':
-                    print("Aborted.")
+                    print("Mission aborted.")
                     return
-
                 print()
                 for d in fully_qualifying:
                     dir_path = Path(d["path"])
