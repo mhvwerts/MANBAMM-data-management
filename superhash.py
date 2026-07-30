@@ -95,7 +95,7 @@ with open(p_result, 'w', encoding='utf-8') as fout:
     fout.write("#\n")
  
 # The walklist may be reconstructed from the 'restart file'
-#  along the following line
+#  along the following lines
 # 
 #    walklist = []
 #    
