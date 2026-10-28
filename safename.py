@@ -171,7 +171,22 @@ def checkcheck(root, fdn, dftype, fixit = False):
                     print()
                     
     return ((not problem_detected), fixed1problem)
-                
+
+
+
+def scan(root_dir, repair_mode):
+    """Walk the tree. Returns (N_unclean, stopped_early)."""
+    n_unclean = 0
+    for root, subdirs, files in sorted(os.walk(root_dir), reverse=True):
+        entries = [(d, 'DIR') for d in sorted(subdirs)] + \
+                  [(f, 'FILE') for f in sorted(files)]
+        for name, dftype in entries:
+            clean, fixed_pb = checkcheck(root, name, dftype, fixit=repair_mode)
+            if not clean:
+                n_unclean += 1
+            if fixed_pb:
+                return n_unclean, True   # leaves all loops at once
+    return n_unclean, False          
         
         
 #%% main code
@@ -211,21 +226,15 @@ print('------------------------------------')
 print('Source directory:   ', str(p_src))
 print('')
 
-N_unclean = 0
-walklist = sorted(list(os.walk(p_src_abs)))
-for root, subdirs, files in walklist:
-    for subdir in sorted(subdirs):
-        clean, fixed_pb = checkcheck(root, subdir, 'DIR', fixit=clargs.repair)
-        if not clean:
-            N_unclean += 1
-    for file in sorted(files):
-        clean, fixed_pb = checkcheck(root, file, 'FILE', fixit=clargs.repair)
-        if not clean:
-            N_unclean += 1
+N_unclean, stopped_early = scan(p_src_abs, clargs.repair)
 
 print('------------------------------------')
-if N_unclean==0:
+if stopped_early:
+    print('safename terminated early: it fixed exactly 1 problem on 1 file.')
+    print('Run it again to continue.')
+elif N_unclean == 0:
     print('All scanned entries were found to be clean. Good!')
 else:
     print(f'{N_unclean} unclean entries were found. These may need fixing.')
+    
 
