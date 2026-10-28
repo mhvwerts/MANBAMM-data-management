@@ -21,7 +21,7 @@ import shutil
 import zipfile
 from pathlib import Path
 
-DEFAULT_FILECOUNT_THRESH = 40
+DEFAULT_FILECOUNT_THRESH = 200
 DEFAULT_FILESIZE_THRESH = 12_000_000
 
 
