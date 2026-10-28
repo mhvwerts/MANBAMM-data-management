@@ -186,7 +186,21 @@ def scan(root_dir, repair_mode):
                 n_unclean += 1
             if fixed_pb:
                 return n_unclean, True   # leaves all loops at once
-    return n_unclean, False     
+    # check the name of the top-level directory itself (last, like a parent
+    # that is processed after its children)
+    # do not fix it (fixit=False), but complain loudly
+    if root_dir.name:                      # empty for a drive root like C:\
+        clean, fixed_pb = checkcheck(root_dir.parent, root_dir.name, 'DIR',
+                                     fixit=False)
+        if not clean:
+            print(60*'*')
+            print('*** TOP-LEVEL DIRECTORY ITSELF HAS AN UNSAFE NAME - FIX THIS YOURSELF! ***')
+            print(60*'*')
+            n_unclean += 1
+        if fixed_pb: # fixit=False, so will never run, except if code changes
+            return n_unclean, True
+
+    return n_unclean, False   
         
         
 #%% main code
