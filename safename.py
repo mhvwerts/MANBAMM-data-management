@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 r"""
 ## safename: filenames that are compatible across Windows, MacOSX and Linux
 
@@ -20,7 +18,7 @@ with all systems. This can be done with the aid of `safename`.
 TODO: sync the text above with `README.md`
 """
 
-__version__ = '0.1a2'
+__version__ = '0.2'
 
 import sys
 import os
@@ -77,6 +75,7 @@ def checkcheck(root, fdn, dftype, fixit = False):
     None.
 
     """
+    problem_detected = False
     fixed1problem = False
     pp = Path(root, fdn)
 
@@ -95,6 +94,7 @@ def checkcheck(root, fdn, dftype, fixit = False):
     else:
         # living dangerously
         if below32:
+            problem_detected = True
             print('UNPRINTABLE\t'+str(pp)+'\t'+dftype)
             if fixit and not fixed1problem:
                 fixed1problem = True
@@ -114,6 +114,7 @@ def checkcheck(root, fdn, dftype, fixit = False):
     #
     goodname = fdn.strip()
     if goodname != fdn:
+        problem_detected = True
         print('WHITESPACE\t'+str(pp)+'\t'+dftype)
         if fixit and not fixed1problem:
             fixed1problem = True
@@ -127,6 +128,7 @@ def checkcheck(root, fdn, dftype, fixit = False):
     fixchars = str.maketrans(r'<>:"/\|?*', r"[]-'____x")
     goodname = fdn.translate(fixchars)
     if goodname != fdn:
+        problem_detected = True
         print('BADCHARS\t'+str(pp)+'\t'+dftype)
         if fixit and not fixed1problem:
             fixed1problem = True
@@ -137,6 +139,7 @@ def checkcheck(root, fdn, dftype, fixit = False):
     # 4. SYMLINKS check
     # 
     if pp.is_symlink():
+        problem_detected = True
         print('SYMLINK\t'+str(pp)+'\t'+dftype)
         if fixit and not fixed1problem:
             fixed1problem = True
@@ -166,6 +169,8 @@ def checkcheck(root, fdn, dftype, fixit = False):
                     pp.unlink()
                     print('FIXED...')
                     print()
+                    
+    return (not problem_detected)
                 
         
         
@@ -206,10 +211,21 @@ print('------------------------------------')
 print('Source directory:   ', str(p_src))
 print('')
 
+N_unclean = 0
 walklist = sorted(list(os.walk(p_src_abs)))
 for root, subdirs, files in walklist:
     for subdir in sorted(subdirs):
-        checkcheck(root, subdir, 'DIR', fixit=clargs.repair)
+        clean = checkcheck(root, subdir, 'DIR', fixit=clargs.repair)
+        if not clean:
+            N_unclean += 1
     for file in sorted(files):
-        checkcheck(root, file, 'FILE', fixit=clargs.repair)
+        clean = checkcheck(root, file, 'FILE', fixit=clargs.repair)
+        if not clean:
+            N_unclean += 1
+
+print('------------------------------------')
+if N_unclean==0:
+    print('All scanned entries were found to be clean. Good!')
+else:
+    print(f'{N_unclean} unclean entries were found. These may need fixing.')
 
