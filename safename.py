@@ -170,7 +170,7 @@ def checkcheck(root, fdn, dftype, fixit = False):
                     print('FIXED...')
                     print()
                     
-    return (not problem_detected)
+    return ((not problem_detected), fixed1problem)
                 
         
         
@@ -215,11 +215,11 @@ N_unclean = 0
 walklist = sorted(list(os.walk(p_src_abs)))
 for root, subdirs, files in walklist:
     for subdir in sorted(subdirs):
-        clean = checkcheck(root, subdir, 'DIR', fixit=clargs.repair)
+        clean, fixed_pb = checkcheck(root, subdir, 'DIR', fixit=clargs.repair)
         if not clean:
             N_unclean += 1
     for file in sorted(files):
-        clean = checkcheck(root, file, 'FILE', fixit=clargs.repair)
+        clean, fixed_pb = checkcheck(root, file, 'FILE', fixit=clargs.repair)
         if not clean:
             N_unclean += 1
 
