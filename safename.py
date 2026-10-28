@@ -85,12 +85,12 @@ def checkcheck(root, fdn, dftype, fixit = False):
     # Check for presence of character with ASCII/Unicode code below 32
     # (unprintable characters). This is a dangerous problem and should be 
     # dealt with manually before using `safename`.
-    # Thus, we will raise an AssertionError and crash the program.
+    # Thus, we will crash the program.
     # (unless we LIVEDANGEROUSLY = True)
     
     below32 = True in [ord(c)<32 for c in fdn]
-    if not LIVEDANGEROUSLY:
-        assert not below32, "FATAL: illegal character in "+str(pp)
+    if below32 and not LIVEDANGEROUSLY:
+        sys.exit("FATAL: illegal character in " + repr(str(pp)))
     else:
         # living dangerously
         if below32:
