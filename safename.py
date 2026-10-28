@@ -186,7 +186,7 @@ def scan(root_dir, repair_mode):
                 n_unclean += 1
             if fixed_pb:
                 return n_unclean, True   # leaves all loops at once
-    return n_unclean, False          
+    return n_unclean, False     
         
         
 #%% main code
