@@ -8,7 +8,8 @@ Over the years, we have programmed several 'file loaders' in Python that read in
 
 ## Contents
 
-- OceanOptics ProcSpec file reader: *under development*
+- [OceanOptics ProcSpec file reader](./read_procspec_consensus.py)
+- more coming in due time (Avantes RAW8, RWD8; Shimadzu HPLC)
 
 
 ## Requirements
