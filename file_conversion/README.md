@@ -81,7 +81,7 @@ A runnable example that plots the two files in `example_data/` is in [`examples/
 
 ### ProcSpec reader
 
-A ProcSpec file is a ZIP archive holding a `ps_<digits>.xml` data file and an `OOISignatures.xml` file with a hash of the data file. The reader is inspired by [`lightr`](https://github.com/ropensci/lightr)'s `lr_parse_oceanoptics_procspec` and by an older in-house Python loader; consensus between the codes was established and the result was tested on real ProcSpec files. Coding was assisted by claude.ai.
+A ProcSpec file is a ZIP archive holding a `ps_<digits>.xml` data file and an `OOISignatures.xml` file with a hash of the data file. The reader is inspired by [`lightr`](https://github.com/ropensci/lightr)'s `lr_parse_oceanoptics_procspec` and by an older in-house Python loader of ProcSpec files. Consensus between the codes was established and the result was tested on real ProcSpec files. Coding was assisted by claude.ai.
 
 
 ## License
