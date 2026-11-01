@@ -330,29 +330,3 @@ def read_procspec(filename, verify_checksum=True,
         "metadata": metadata,
         "full_xml_metadata": _xml_metadata(root) if full_xml_metadata else None
     }
-
-
-
-if __name__ == "__main__":
-    from pathlib import Path
-    import matplotlib.pyplot as plt
-    
-    df = './example_data'
-    
-    for fn in ["nanoparticle_light_extinction_cy260403_630_1030nm.ProcSpec",
-               "nanoparticle_light_scattering_cy260403_630_1030nm.ProcSpec"]:
-        fpn = Path(df, fn)
-        ds = read_procspec(fpn)
-
-        print()
-        print(ds)
-        print()
-        
-        plt.figure()
-        plt.clf()
-        plt.plot(ds['wl'], ds['processed'])
-        plt.xlim(630, 1030)
-        plt.ylim(ymin=0)
-        plt.xlabel('wavelength / nm')
-        
-    plt.show()
