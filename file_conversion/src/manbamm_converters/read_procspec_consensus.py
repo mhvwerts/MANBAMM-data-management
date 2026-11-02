@@ -240,7 +240,7 @@ def read_procspec(filename, verify_checksum=True,
             f"Unexpected root node '{root.tag}' (expected '{ROOT_TAG}')."
         )
 
-    # Scope spectrum (first match only, as in the R code)
+    # Scope spectrum (first match only, which is probably the only one)
     scope_node = root.find(".//pixelValues")
     scope = _doubles([scope_node]) if scope_node is not None else np.array([])
     # The raw integration time is in microseconds; store it in milliseconds.
