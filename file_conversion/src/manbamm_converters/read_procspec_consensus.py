@@ -8,8 +8,8 @@ more auxiliary file; the archive normally holds exactly 3 files).
 - Inspired by lightr's `lr_parse_oceanoptics_procspec`
   (https://github.com/ropensci/lightr)
   and an older home-grown ProcSpec loader in Python.
-- Coding assisted by claude.ai
 - Consensus between the different codes was established.
+- Coding assisted by LLM
 - Tweaked and tested using real ProcSpec files
 """
 
